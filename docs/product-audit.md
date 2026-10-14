@@ -20,7 +20,7 @@ Herramienta de dibujo **conceptual**, sin cuentas, para ~30 alumnos de Bases de 
 - Moodle: modal claro con acceso a curso y exportación para entrega manual. **No consulta ni envía entregas** ni gestiona sesiones del alumno.
 
 ## Qué faltaría para soporte Chen/EER completo
-Prioridad alta: relación ternaria con cardinalidades por rol, relaciones recursivas con nombres de rol, atributos compuestos con subatributos enlazados por óvalos, multivaluados con doble elipse real en HTML y exportación, atributos derivados con línea discontinua en ambos renderizadores, clave parcial según tipo de entidad débil y su relación identificadora. Cardinalidades y participación mínima y máxima deben probarse contra los ejemplos exactos del profesor, no asumir que las variantes de notación son equivalentes.
+Prioridad alta: relación ternaria con cardinalidades por rol, relaciones recursivas con nombres de rol, validación visual de geometría de subatributos compuestos, atributos multivaluados de doble elipse y derivados con borde discontinuo en HTML y exportación, clave parcial según tipo de entidad débil y su relación identificadora. Cardinalidades y participación mínima y máxima deben probarse contra los ejemplos exactos del profesor, no asumir que las variantes de notación son equivalentes.
 
 Prioridad media: búsqueda, alinear, duplicar, Ctrl+S como proyecto, exportación SVG vectorial, encuadre inteligente de elementos y tests de navegador con Playwright. Sincronización/colaboración: fuera del MVP para una clase trabajando individualmente.
 
@@ -59,3 +59,9 @@ Arquitectura segura futura (si autoriza la administración):
 - `node --check assets/js/workspace.js`
 - `node --test tests/*.test.mjs`
 - Pruebas manuales o E2E reales de zoom sobre cursor, traslado de nodos, apertura y cierre de inspector, creación de relaciones ISA, importación/exportación JSON sin pérdida del enunciado, lectura segura del Markdown y exportación PDF.
+
+## Iteración adicional (14/10/2026)
+- Sustituidos los marcadores de atributo por óvalos Chen en el tablero mediante CSS; las variantes multivaluado y derivado usan contorno doble y discontinuo.
+- Exportación en Canvas actualizada para dibujar óvalos, subrayado de identificadores, dobles óvalos y bordes discontinuos. Esto corrige la discrepancia más visible entre el editor y el PDF/PNG.
+- Los atributos compuestos permiten hasta ocho subatributos editables, conectados al padre; sus nombres se incluyen en el proyecto JSON y se dibujan en el lienzo/exportación.
+- **Pendiente:** navegador real y pruebas de interacción (arrastre, selección, ajustes de líneas y PDF), reglas semánticas completas de relaciones de tres o más entidades, atributos derivados por dependencia y composición multinivel. El CI verifica sintaxis/contratos estáticos, no captura el navegador.
