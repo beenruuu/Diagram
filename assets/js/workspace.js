@@ -76,7 +76,7 @@ function enhanceAttributes(){
       const select=document.createElement('select');select.className='field-kind';select.setAttribute('aria-label','Tipo de atributo '+(i+1));
       for(const [value,label] of attrKinds){let opt=document.createElement('option');opt.value=value;opt.textContent=label;select.appendChild(opt)}
       const id=entityId+':'+i;select.value=window.FormaAttributes?.getKind(entityId,i)||'simple';
-      select.addEventListener('change',()=>{window.FormaAttributes?.setKind(entityId,i,select.value);paintAttributeKinds();enhanceAttributes()});
+      select.addEventListener('change',()=>{window.FormaAttributes?.setKind(entityId,i,select.value);window.FormaAttributes?.refresh?.()});
       const head=document.createElement('div');head.className='field-name-row';
       const pk=row.querySelector('.pk-toggle'),remove=row.querySelector('.remove');
       if(pk)head.appendChild(pk);head.appendChild(fieldInput);if(remove)head.appendChild(remove);
