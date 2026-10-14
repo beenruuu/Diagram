@@ -28,9 +28,9 @@ function renderBrief(){
   else{preview.textContent=raw}
 }
 renderBrief();
-let savedBrief=editor.value;
+
 function persistBrief(){try{localStorage.setItem(key,editor.value)}catch{ /* storage denied: local-only until refresh */ }}
-editor.addEventListener('input',()=>{savedBrief=editor.value;persistBrief()});
+editor.addEventListener('input',()=>{persistBrief()});
 function tab(edit){editor.hidden=!edit;preview.hidden=edit;$('#noteEditTab').classList.toggle('active',edit);$('#notePreviewTab').classList.toggle('active',!edit);$('#noteEditTab').setAttribute('aria-pressed',String(edit));$('#notePreviewTab').setAttribute('aria-pressed',String(!edit));if(!edit)renderBrief()}
 $('#noteEditTab').addEventListener('click',()=>tab(true));
 $('#notePreviewTab').addEventListener('click',()=>tab(false));
@@ -38,8 +38,8 @@ $('#statementBtn').addEventListener('click',()=>{panel.hidden=!panel.hidden;if(!
 $('#closeStatement').addEventListener('click',()=>panel.hidden=true);
 /* Export notes in a versioned companion JSON, without modifying the existing ER data format. */
 const importControl=$('#importFile');
-const originalClick=$('#importBtn').onclick;
-importControl.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file||file.size>1500000)return;try{const value=JSON.parse(await file.text());if(typeof value.statement==='string'&&value.statement.length<=50000){editor.value=value.statement;persistBrief();renderBrief()}}catch{/* Base editor reports invalid JSON */}});
+
+importControl.addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file||file.size>1500000)return;try{const value=JSON.parse(await file.text());/* The core importer applies notes only after confirmation. */}catch{/* Base editor reports invalid JSON */}});
 /* Preserve note after downloading a project as an optional separate text file. Users can also export text in the panel. */
 const btn=document.createElement('button');btn.type='button';btn.className='sheet-export';btn.innerHTML='<i data-lucide="copy"></i> Copiar enunciado';
 btn.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(editor.value);btn.lastChild.textContent=' Copiado'}catch{editor.focus();editor.select()}});panel.insertBefore(btn,panel.querySelector('.sheet-caption'));
@@ -61,8 +61,8 @@ $('#zoomIn').addEventListener('click',()=>{ /* native handler preserves zoom sta
 document.addEventListener('keydown',e=>{if(e.key==='0'&&!e.ctrlKey&&!e.metaKey&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)){$('#fitBtn').click()}});
 /* Attribute variants from Chen: composite, multivalued, derived and optional. */
 const attrKinds=[['simple','Simple'],['composite','Compuesto'],['multivalued','Multivaluado'],['derived','Derivado'],['optional','Opcional'],['partial-key','Clave parcial']];
-const stateKey='forma-er-attribute-types-v1';
-let types={};try{types=JSON.parse(localStorage.getItem(stateKey)||'{}')||{}}catch{}
+
+
 let attributesEnhancing=false;
 function enhanceAttributes(){
   if(attributesEnhancing)return;attributesEnhancing=true;
@@ -75,8 +75,8 @@ function enhanceAttributes(){
       const fieldInput=row.querySelector('[data-fieldname]');if(!fieldInput)continue;
       const select=document.createElement('select');select.className='field-kind';select.setAttribute('aria-label','Tipo de atributo '+(i+1));
       for(const [value,label] of attrKinds){let opt=document.createElement('option');opt.value=value;opt.textContent=label;select.appendChild(opt)}
-      const id=entityId+':'+i;select.value=types[id]||'simple';
-      select.addEventListener('change',()=>{types[id]=select.value;try{localStorage.setItem(stateKey,JSON.stringify(types))}catch{};paintAttributeKinds()});
+      const id=entityId+':'+i;select.value=window.FormaAttributes?.getKind(entityId,i)||'simple';
+      select.addEventListener('change',()=>{window.FormaAttributes?.setKind(entityId,i,select.value);paintAttributeKinds()});
       const head=document.createElement('div');head.className='field-name-row';
       const pk=row.querySelector('.pk-toggle'),remove=row.querySelector('.remove');
       if(pk)head.appendChild(pk);head.appendChild(fieldInput);if(remove)head.appendChild(remove);
@@ -87,7 +87,7 @@ function enhanceAttributes(){
     paintAttributeKinds();icon();
   }finally{attributesEnhancing=false}
 }
-function paintAttributeKinds(){document.querySelectorAll('.attribute[data-entity]').forEach(a=>{for(const [k] of attrKinds)if(k!=='simple')a.classList.remove(k);const value=types[a.dataset.entity+':'+a.dataset.field]||'simple';if(value!=='simple')a.classList.add(value)})}
+function paintAttributeKinds(){document.querySelectorAll('.attribute[data-entity]').forEach(a=>{for(const [k] of attrKinds)if(k!=='simple')a.classList.remove(k);const value=window.FormaAttributes?.getKind(a.dataset.entity,Number(a.dataset.field))||'simple';if(value!=='simple')a.classList.add(value)})}
 new MutationObserver(()=>{paintAttributeKinds()}).observe(canvas,{childList:true,subtree:false});
 paintAttributeKinds();icon();
 })();
