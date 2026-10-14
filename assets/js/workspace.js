@@ -76,12 +76,19 @@ function enhanceAttributes(){
       const select=document.createElement('select');select.className='field-kind';select.setAttribute('aria-label','Tipo de atributo '+(i+1));
       for(const [value,label] of attrKinds){let opt=document.createElement('option');opt.value=value;opt.textContent=label;select.appendChild(opt)}
       const id=entityId+':'+i;select.value=window.FormaAttributes?.getKind(entityId,i)||'simple';
-      select.addEventListener('change',()=>{window.FormaAttributes?.setKind(entityId,i,select.value);paintAttributeKinds()});
+      select.addEventListener('change',()=>{window.FormaAttributes?.setKind(entityId,i,select.value);paintAttributeKinds();enhanceAttributes()});
       const head=document.createElement('div');head.className='field-name-row';
       const pk=row.querySelector('.pk-toggle'),remove=row.querySelector('.remove');
       if(pk)head.appendChild(pk);head.appendChild(fieldInput);if(remove)head.appendChild(remove);
       const sql=row.querySelector('[data-fieldtype]');if(sql)sql.remove();
       row.append(head,select);
+      const composite=document.createElement('div');composite.className='composite-fields';
+      const redraw=()=>{composite.replaceChildren();if(select.value!=='composite'){composite.hidden=true;return}composite.hidden=false;
+        const children=window.FormaAttributes?.getChildren(entityId,i)||[];
+        children.forEach((child,j)=>{const r=document.createElement('div');r.className='subfield-row';const input=document.createElement('input');input.value=child.name;input.setAttribute('aria-label','Subatributo '+(j+1));input.onchange=()=>{window.FormaAttributes?.setChild(entityId,i,j,input.value);window.FormaAttributes?.refresh?.()};
+        const del=document.createElement('button');del.type='button';del.textContent='Eliminar';del.onclick=()=>{window.FormaAttributes?.removeChild(entityId,i,j);window.FormaAttributes?.refresh?.()};r.append(input,del);composite.appendChild(r)});
+        if(children.length<8){const add=document.createElement('button');add.type='button';add.textContent='+ Subatributo';add.onclick=()=>{window.FormaAttributes?.addChild(entityId,i);window.FormaAttributes?.refresh?.()};composite.appendChild(add)}};
+      row.append(composite);redraw();
     }
     if(!fields.nextElementSibling?.classList?.contains('attr-help')){let help=document.createElement('p');help.className='attr-help';help.textContent='Chen: los atributos son óvalos. Elige una variante y arrastra el óvalo para colocarlo.';fields.after(help)}
     paintAttributeKinds();icon();
