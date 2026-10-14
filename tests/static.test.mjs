@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
+const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const js=fs.readFileSync(new URL('../assets/js/app.js',import.meta.url),'utf8');
+const css=fs.readFileSync(new URL('../assets/css/styles.css',import.meta.url),'utf8');
+test('JS syntax is valid',()=>assert.doesNotThrow(()=>new vm.Script(js)));
+test('HTML references separated CSS and JS',()=>{assert.match(html,/assets\/css\/styles\.css/);assert.match(html,/assets\/js\/app\.js/);assert.doesNotMatch(html,/<style[ >]/);assert.doesNotMatch(html,/<script>(?![\s\S]*src)/)});
+test('Core editor UI is present',()=>{for(const id of ['canvas','connections','addEntity','addRelation','addHierarchy','addAggregation','entityList','properties','exportBtn','importFile','importBtn','exampleBtn','relModal','isaModal','aggregationModal'])assert.ok(html.includes('id="'+id+'"'),'Missing '+id)});
+test('No forced recovery model in startup',()=>{assert.doesNotMatch(js,/RECOVERY_MODEL|RECOVERY_MARKER/);assert.match(js,/function load\(\)/)});
+test('Available exports/imports are wired',()=>{for(const type of ['json','jpg','png','pdf'])assert.ok(html.includes('data-export="'+type+'"'),'Missing '+type);assert.match(js,/function importProject\(/);assert.match(js,/function validateImportedState\(/)});
+test('Chen shape styles are included',()=>{for(const klass of ['.node','.attribute','.chen-diamond','.isa-triangle','.aggregation-frame'])assert.ok(css.includes(klass))});
