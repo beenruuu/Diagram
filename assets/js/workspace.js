@@ -6,7 +6,7 @@ const workspace=$('.workspace'),inspector=$('.right'),left=$('.left');
 const showInspector=()=>{workspace.classList.add('inspector-open');if(!$('#statementPanel').hidden)$('#statementPanel').hidden=true};
 $('#inspectorClose').addEventListener('click',()=>workspace.classList.remove('inspector-open'));
 const canvas=$('#canvas');
-new MutationObserver(()=>{if($('#properties').querySelector('.empty-props')){workspace.classList.remove('inspector-open');return}showInspector();enhanceAttributes();icon()}).observe($('#properties'),{childList:true});
+new MutationObserver(()=>{if($('#properties').querySelector('.empty-props')){workspace.classList.remove('inspector-open');return}showInspector();enhanceAttributes()}).observe($('#properties'),{childList:true});
 const advanced=$('#advancedBtn');
 advanced.addEventListener('click',()=>{const on=left.classList.toggle('advanced-visible');advanced.setAttribute('aria-expanded',String(on));advanced.innerHTML='<i data-lucide="'+(on?'chevron-up':'chevrons-up-down')+'"></i> '+(on?'Menos elementos':'Más elementos');icon()});
 const modal=(id,on)=>$(id).classList.toggle('show',on);
@@ -91,7 +91,7 @@ function enhanceAttributes(){
       row.append(composite);redraw();
     }
     if(!fields.nextElementSibling?.classList?.contains('attr-help')){let help=document.createElement('p');help.className='attr-help';help.textContent='Chen: los atributos son óvalos. Elige una variante y arrastra el óvalo para colocarlo.';fields.after(help)}
-    paintAttributeKinds();icon();
+    paintAttributeKinds();
   }finally{attributesEnhancing=false}
 }
 function paintAttributeKinds(){document.querySelectorAll('.attribute[data-entity]').forEach(a=>{for(const [k] of attrKinds)if(k!=='simple')a.classList.remove(k);const value=window.FormaAttributes?.getKind(a.dataset.entity,Number(a.dataset.field))||'simple';if(value!=='simple')a.classList.add(value)})}
